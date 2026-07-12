@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nano Banana Pro｜提示詞產生器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ====== 設計變數：香蕉皮深色調 + 科技青做對比 ====== */
+  :root{
+    --bg:#131009;
+    --surface:#1d1810;
+    --surface-2:#262015;
+    --line:#3a3122;
+    --yellow:#f5c518;
+    --yellow-deep:#d9a404;
+    --teal:#2daa9e;
+    --cream:#f6f1e4;
+    --muted:#9c927b;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--cream);
+    font-family:'Inter',sans-serif;
+    line-height:1.6;
+  }
+  ::selection{background:var(--yellow); color:#131009;}
+
+  /* ====== 頂部導覽列 ====== */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(19,16,9,.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    flex-wrap:wrap;
+  }
+  .topbar .brand{
+    font-family:'Fraunces',serif; font-weight:600; font-size:18px;
+    letter-spacing:.02em;
+  }
+  .topbar .brand em{color:var(--yellow); font-style:italic;}
+  .quicknav{display:flex; gap:6px; flex-wrap:wrap;}
+  .quicknav a{
+    color:var(--muted); text-decoration:none; font-size:12px;
+    border:1px solid var(--line); border-radius:20px; padding:5px 10px;
+    transition:.2s;
+  }
+  .quicknav a:hover{color:var(--bg); background:var(--yellow); border-color:var(--yellow);}
+
+  /* ====== Hero ====== */
+  .hero{
+    padding:72px 24px 48px; max-width:900px; margin:0 auto; text-align:left;
+  }
+  .hero .eyebrow{
+    color:var(--teal); font-family:'JetBrains Mono',monospace; font-size:13px;
+    letter-spacing:.12em; text-transform:uppercase; margin-bottom:14px;
+  }
+  .hero h1{
+    font-family:'Fraunces',serif; font-weight:600; font-size:clamp(34px,5vw,54px);
+    margin:0 0 18px; line-height:1.08;
+  }
+  .hero h1 em{color:var(--yellow); font-style:italic; font-weight:500;}
+  .hero p{color:var(--muted); font-size:16px; max-width:640px; margin:0 0 28px;}
+  .hero .actions{display:flex; gap:12px; flex-wrap:wrap;}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:12px 20px; border-radius:10px; font-weight:600; font-size:14px;
+    text-decoration:none; border:1px solid transparent; cursor:pointer;
+    transition:.2s;
+  }
+  .btn-primary{background:var(--yellow); color:#181307;}
+  .btn-primary:hover{background:var(--yellow-deep);}
+  .btn-ghost{background:transparent; color:var(--cream); border-color:var(--line);}
+  .btn-ghost:hover{border-color:var(--teal); color:var(--teal);}
+
+  /* ====== 使用說明 ====== */
+  .howto{
+    max-width:900px; margin:0 auto 56px; padding:20px 24px;
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  }
+  .howto h2{font-size:14px; text-transform:uppercase; letter-spacing:.08em; color:var(--teal); margin:0 0 14px;}
+  .howto ol{margin:0; padding-left:20px; color:var(--cream); font-size:14px;}
+  .howto li{margin-bottom:6px;}
+  .howto li span{color:var(--muted);}
+
+  /* ====== 卡片區 ====== */
+  .wrap{max-width:900px; margin:0 auto; padding:0 24px 100px;}
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:28px 26px;
+    margin-bottom:22px;
+    scroll-margin-top:80px;
+  }
+  .card-head{display:flex; gap:16px; align-items:flex-start; margin-bottom:18px;}
+  .card-num{
+    font-family:'Fraunces',serif; font-style:italic; font-size:38px; font-weight:500;
+    color:var(--yellow); line-height:1; opacity:.9; min-width:52px;
+  }
+  .card-title h3{margin:0 0 4px; font-size:19px; font-weight:700;}
+  .card-title p{margin:0; color:var(--muted); font-size:13.5px;}
+  .tip-box{
+    background:var(--surface-2); border-left:3px solid var(--teal);
+    padding:12px 14px; border-radius:8px; font-size:13.5px; color:#cfe9e6;
+    margin-bottom:20px;
+  }
+
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:13px; font-weight:600; color:var(--cream); margin-bottom:6px;}
+  .field .hint{color:var(--muted); font-weight:400; font-size:12px;}
+  .field input[type=text], .field input[type=number], .field textarea, .field select{
+    width:100%; background:#161209; border:1px solid var(--line); color:var(--cream);
+    padding:10px 12px; border-radius:8px; font-family:'Inter',sans-serif; font-size:14px;
+    resize:vertical;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus{
+    outline:none; border-color:var(--yellow);
+  }
+  .radio-group{display:flex; gap:16px; margin-bottom:6px;}
+  .radio-group label{display:flex; align-items:center; gap:6px; font-weight:500; font-size:13.5px; cursor:pointer;}
+  .radio-group input{accent-color:var(--yellow);}
+  .subfields{display:none; padding:12px 14px; background:var(--surface-2); border-radius:8px; margin-top:8px;}
+  .subfields.active{display:block;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:600px){.grid2{grid-template-columns:1fr;}}
+
+  .card-actions{display:flex; gap:10px; margin-top:6px; flex-wrap:wrap;}
+  .output{
+    margin-top:16px; display:none;
+  }
+  .output.show{display:block;}
+  .output textarea{
+    width:100%; min-height:110px; background:#0e0c07; border:1px solid var(--yellow-deep);
+    color:var(--yellow); font-family:'JetBrains Mono',monospace; font-size:13px;
+    padding:14px; border-radius:8px; line-height:1.55;
+  }
+  .copy-feedback{font-size:12px; color:var(--teal); margin-left:8px; opacity:0; transition:.3s;}
+  .copy-feedback.show{opacity:1;}
+
+  footer{
+    text-align:center; color:var(--muted); font-size:12.5px; padding:32px 24px 60px;
+  }
+  footer a{color:var(--teal);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">nano banana <em>prompt lab</em></div>
+  <div class="quicknav" id="quicknav"></div>
+</div>
+
+<div class="hero">
+  <div class="eyebrow">Nano Banana Pro · 提示詞產生器</div>
+  <h1>把十大秘訣，變成<em>可直接貼上</em>的提示詞</h1>
+  <p>依照官方十大製作秘訣整理而成，每個技巧都有專屬表單，填入你的需求後即可一鍵產生結構化提示詞，複製後貼到 Nano Banana Pro 使用。</p>
+  <div class="actions">
+    <a class="btn btn-primary" href="https://nanobananas.ai/zh-TW/profile" target="_blank" rel="noopener">前往 nanobananas.ai 貼上提示詞 ↗</a>
+    <a class="btn btn-ghost" href="#howto">使用說明</a>
+  </div>
+</div>
+
+<div class="howto" id="howto">
+  <h2>使用說明</h2>
+  <ol>
+    <li><span>1．</span>從上方導覽列或往下捲動，選擇符合你需求的秘訣卡片。</li>
+    <li><span>2．</span>依欄位提示填入主體、風格、細節等資訊，欄位留空會自動略過。</li>
+    <li><span>3．</span>點擊「產生提示詞」，下方會出現組合好的中文提示詞。</li>
+    <li><span>4．</span>點擊「複製」，再到 <a href="https://nanobananas.ai/zh-TW/profile" target="_blank" rel="noopener" style="color:var(--teal)">nanobananas.ai/zh-TW/profile</a> 貼上並送出生成。</li>
+  </ol>
+</div>
+
+<div class="wrap" id="cards"></div>
+
+<footer>
+  參考來源：<a href="https://www.koc.com.tw/archives/622143" target="_blank" rel="noopener">koc.com.tw／Nano Banana Pro 十大秘訣</a>　·　本工具僅為提示詞組裝輔助，實際生成效果請以 Nano Banana Pro 為準。
+</footer>
+
+<script>
+/* ====================================================================
+   資料模型：把每個秘訣視為一個「領域物件」（domain object）
+   - id：卡片編號
+   - title / subtitle / tip：說明文字
+   - render：回傳這張卡片專屬的表單 HTML（字串）
+   - build：讀取表單目前的值，組合成最終提示詞字串
+   這樣往後如果要新增第 11 個秘訣，只要在 TIPS 陣列多加一筆即可。
+==================================================================== */
+
+const TIPS = [
+  {
+    id:1, num:'01',
+    title:'提示詞黃金法則',
+    subtitle:'自然語言取代標籤，用細節描述獲得最佳結果',
+    tip:'停止使用單字標籤（如 Cool car, neon），改用富含細節的自然語言描述。若已有生成結果，優先使用「對話式修改」局部調整，而非整張重生。',
+    render:(p)=>`
+      <div class="field"><label>場景 / 環境</label>
+        <input type="text" id="${p}-scene" placeholder="例如：雨夜的東京街頭"></div>
+      <div class="field"><label>主體</label>
+        <input type="text" id="${p}-subject" placeholder="例如：一台未來派跑車高速駛過"></div>
+      <div class="field"><label>光線與氛圍</label>
+        <input type="text" id="${p}-light" placeholder="例如：霓虹燈倒映在濕滑的地面與車身金屬上"></div>
+      <div class="field"><label>額外細節 <span class="hint">（選填）</span></label>
+        <textarea id="${p}-detail" rows="2" placeholder="任何想補充的視覺細節"></textarea></div>
+      <div class="field"><label>後續對話式修改指令 <span class="hint">（選填，用於局部調整既有結果）</span></label>
+        <input type="text" id="${p}-revise" placeholder="例如：很棒，把光線改成夕陽，文字換成霓虹藍"></div>
+    `,
+    build:(p)=>{
+      const scene=val(p,'scene'), subject=val(p,'subject'), light=val(p,'light'),
+            detail=val(p,'detail'), revise=val(p,'revise');
+      let core=[scene && `在${scene}`, subject].filter(Boolean).join('，');
+      let out=core ? core+'。' : '';
+      if(light) out+=`${light}。`;
+      if(detail) out+=`${detail}。`;
+      if(revise) out+=`\n\n（對話式修改）：「${revise}」`;
+      return out || '請至少填寫「場景」或「主體」。';
+    }
+  },
+  {
+    id:2, num:'02',
+    title:'文字渲染與資訊圖表',
+    subtitle:'SOTA 等級文字渲染，精準顯示的文字務必加引號',
+    tip:'欲將大量文字或 PDF 壓縮為視覺圖表時，明確指定風格，且必須無誤呈現的文字要加上引號。',
+    render:(p)=>`
+      <div class="field"><label>資料來源 / 主題</label>
+        <input type="text" id="${p}-source" placeholder="例如：Google 最新財報 PDF 的內容"></div>
+      <div class="field"><label>圖表風格</label>
+        <select id="${p}-style">
+          <option>精緻雜誌風</option><option>技術流程圖</option>
+          <option>簡約現代風</option><option>資訊看板風</option>
+        </select></div>
+      <div class="field"><label>需呈現的重點 <span class="hint">（每行一項）</span></label>
+        <textarea id="${p}-highlights" rows="3" placeholder="營收成長&#10;淨利&#10;市佔率變化"></textarea></div>
+      <div class="field"><label>需精準顯示的文字 <span class="hint">（每行一句，會自動加上引號）</span></label>
+        <textarea id="${p}-quotes" rows="2" placeholder="這是我們最強勁的一季"></textarea></div>
+    `,
+    build:(p)=>{
+      const source=val(p,'source'), style=val(p,'style'),
+            highlights=lines(p,'highlights'), quotes=lines(p,'quotes');
+      let out=`請產生一張乾淨、現代感的${style}資訊圖`;
+      out+= source? `，摘要${source}中的主要重點。` : '。';
+      if(highlights.length) out+=`資訊圖中需包含：${highlights.join('、')}。`;
+      if(quotes.length) out+=`並以具風格的引用框，精準顯示以下文字：${quotes.map(q=>'「'+q+'」').join('、')}。`;
+      return out;
+    }
+  },
+  {
+    id:3, num:'03',
+    title:'角色一致性與爆款縮圖',
+    subtitle:'最多參考 14 張圖片，臉部一致但表情姿勢自由變化',
+    tip:'在保持人物臉部特徵與身份一致的前提下，自由改變表情與姿勢，並完美整合人物、文字與圖形物件。',
+    render:(p)=>`
+      <div class="field"><label>參考圖人物描述</label>
+        <input type="text" id="${p}-ref" placeholder="例如：使用圖片 1 裡的人物"></div>
+      <div class="grid2">
+        <div class="field"><label>臉部一致性 / 表情</label>
+          <input type="text" id="${p}-expr" placeholder="保持五官與圖片 1 相同，表情改成興奮又驚訝"></div>
+        <div class="field"><label>動作 / 位置</label>
+          <input type="text" id="${p}-pose" placeholder="擺在畫面左側，用手指向畫面右側"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>主體物件</label>
+          <input type="text" id="${p}-obj" placeholder="右側放上一張美味的酪梨吐司圖片"></div>
+        <div class="field"><label>圖形 / 箭頭</label>
+          <input type="text" id="${p}-graphic" placeholder="粗體黃色箭頭，從手指連向吐司"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>疊加文字</label>
+          <input type="text" id="${p}-text" placeholder="3 分鐘搞定！（厚白邊與陰影）"></div>
+        <div class="field"><label>背景與色彩</label>
+          <input type="text" id="${p}-bg" placeholder="模糊明亮的廚房背景，高飽和高對比"></div>
+      </div>
+    `,
+    build:(p)=>{
+      const ref=val(p,'ref'), expr=val(p,'expr'), pose=val(p,'pose'),
+            obj=val(p,'obj'), graphic=val(p,'graphic'), text=val(p,'text'), bg=val(p,'bg');
+      let out = ref? `${ref}設計一張爆紅影片縮圖。` : '設計一張爆紅影片縮圖。';
+      if(expr) out+=`臉部一致性：${expr}。`;
+      if(pose) out+=`動作：${pose}。`;
+      if(obj) out+=`主體：${obj}。`;
+      if(graphic) out+=`圖形：${graphic}。`;
+      if(text) out+=`文字：中央覆蓋巨大流行風格文字「${text}」。`;
+      if(bg) out+=`背景：${bg}。`;
+      return out;
+    }
+  },
+  {
+    id:4, num:'04',
+    title:'結合 Google 搜尋的即時資料',
+    subtitle:'生成前先思考搜尋結果，適合動態數據視覺化',
+    tip:'適合用於將天氣、股票、新聞、趨勢等動態資料，進行即時的真實世界視覺化。',
+    render:(p)=>`
+      <div class="field"><label>資料類型</label>
+        <select id="${p}-type">
+          <option>旅遊趨勢</option><option>天氣</option><option>股票</option>
+          <option>新聞事件</option><option>社群熱門話題</option>
+        </select></div>
+      <div class="field"><label>具體查詢內容</label>
+        <input type="text" id="${p}-query" placeholder="例如：2025 年造訪美國國家公園的最佳時段"></div>
+      <div class="field"><label>呈現形式</label>
+        <select id="${p}-format">
+          <option>資訊圖</option><option>長條圖</option><option>折線圖</option><option>地圖視覺化</option>
+        </select></div>
+    `,
+    build:(p)=>{
+      const type=val(p,'type'), query=val(p,'query'), format=val(p,'format');
+      let out=`根據目前的${type}，`;
+      if(query) out+=`${query}，`;
+      out+=`產生一張${format}，將這些即時資訊進行視覺化呈現。`;
+      return out;
+    }
+  },
+  {
+    id:5, num:'05',
+    title:'進階編輯、修復與情境轉換',
+    subtitle:'區域編輯、老照片修復、季節與情境轉換',
+    tip:'支援自然語言區域編輯：移除物件、補畫背景、老照片修復、全場景季節轉換，且能保持核心主體結構不變。',
+    render:(p)=>`
+      <div class="radio-group">
+        <label><input type="radio" name="${p}-mode" value="remove" checked onchange="toggleSub('${p}')"> 物件移除</label>
+        <label><input type="radio" name="${p}-mode" value="transform" onchange="toggleSub('${p}')"> 情境 / 季節轉換</label>
+      </div>
+      <div class="subfields active" id="${p}-sub-remove">
+        <div class="field"><label>要移除的物件</label>
+          <input type="text" id="${p}-remove-target" placeholder="例如：背景中的觀光客"></div>
+        <div class="field"><label>填補區域的合理紋理</label>
+          <input type="text" id="${p}-remove-fill" placeholder="例如：鵝卵石地面與店面外牆"></div>
+      </div>
+      <div class="subfields" id="${p}-sub-transform">
+        <div class="field"><label>需保持不變的結構</label>
+          <input type="text" id="${p}-trans-keep" placeholder="例如：房子的建築結構"></div>
+        <div class="field"><label>目標情境 / 季節</label>
+          <input type="text" id="${p}-trans-target" placeholder="例如：冬季，屋頂與庭院加入雪景"></div>
+        <div class="field"><label>光線氛圍</label>
+          <input type="text" id="${p}-trans-light" placeholder="例如：寒冷、陰鬱的午後氛圍"></div>
+      </div>
+    `,
+    build:(p)=>{
+      const mode=document.querySelector(`input[name="${p}-mode"]:checked`).value;
+      if(mode==='remove'){
+        const target=val(p,'remove-target'), fill=val(p,'remove-fill');
+        return `將這張照片中的${target||'指定物件'}移除，並以符合環境的合理紋理（例如：${fill||'周圍環境材質'}）填補空出的區域。`;
+      } else {
+        const keep=val(p,'trans-keep'), target=val(p,'trans-target'), light=val(p,'trans-light');
+        let out=`將這個場景轉換成${target||'目標情境'}。`;
+        if(keep) out+=`${keep}必須完全保持不變。`;
+        if(light) out+=`請把光線調整成${light}。`;
+        return out;
+      }
+    }
+  },
+  {
+    id:6, num:'06',
+    title:'2D ↔ 3D 轉換',
+    subtitle:'平面圖、線框圖、迷因，轉為高保真 3D 渲染',
+    tip:'可將 2D 平面圖、線框圖或迷因直接轉化為高保真的 3D 寫實空間渲染或實體圖。',
+    render:(p)=>`
+      <div class="grid2">
+        <div class="field"><label>輸入類型</label>
+          <select id="${p}-input">
+            <option>2D 平面圖</option><option>線框圖</option><option>迷因（meme）</option>
+          </select></div>
+        <div class="field"><label>版面配置</label>
+          <select id="${p}-layout">
+            <option>單一張圖片（主圖＋多張小圖組成的展示板）</option>
+            <option>單張完整渲染圖</option>
+          </select></div>
+      </div>
+      <div class="field"><label>風格</label>
+        <input type="text" id="${p}-style" placeholder="例如：現代極簡風，溫暖橡木木地板與米白色牆面"></div>
+      <div class="field"><label>各視角 / 分圖內容 <span class="hint">（每行一項，選填）</span></label>
+        <textarea id="${p}-views" rows="3" placeholder="客廳廣角視角（主圖）&#10;主臥室&#10;3D 俯視平面圖"></textarea></div>
+    `,
+    build:(p)=>{
+      const input=val(p,'input'), layout=val(p,'layout'), style=val(p,'style'), views=lines(p,'views');
+      let out=`根據上傳的${input}，生成一張專業展示圖（${layout}）。`;
+      if(views.length) out+=`版面配置：${views.join('；')}。`;
+      if(style) out+=`風格：${style}。`;
+      out+=`品質：照片級寫實渲染，光線柔和自然。`;
+      return out;
+    }
+  },
+  {
+    id:7, num:'07',
+    title:'高解析度與材質細節',
+    subtitle:'原生最高 4K，精準捕捉微觀材質與解構式透視',
+    tip:'原生支援最高 4K 解析度輸出，擅長精準捕捉微觀材質、紋理與解構式透視，適用於大型印刷、海報或桌布。',
+    render:(p)=>`
+      <div class="field"><label>主體</label>
+        <input type="text" id="${p}-subject" placeholder="例如：起司漢堡"></div>
+      <div class="field"><label>解構呈現重點 <span class="hint">（每行一項）</span></label>
+        <textarea id="${p}-points" rows="3" placeholder="烤過的法式奶油麵包質地&#10;肉排煎至焦香的外層&#10;起司融化時閃亮的質感"></textarea></div>
+      <div class="field"><label>用途</label>
+        <select id="${p}-usage">
+          <option>大型印刷</option><option>海報</option><option>桌布</option><option>電商主圖</option>
+        </select></div>
+    `,
+    build:(p)=>{
+      const subject=val(p,'subject'), points=lines(p,'points'), usage=val(p,'usage');
+      let out=`製作一張超寫實的${subject||'主體'}資訊圖，並以解構方式呈現`;
+      if(points.length) out+=`：包含${points.join('、')}`;
+      out+=`。請為每一層標註其材質特色，原生 4K 解析度，適用於${usage}。`;
+      return out;
+    }
+  },
+  {
+    id:8, num:'08',
+    title:'思考與推理視覺化',
+    subtitle:'白板式數學求解、空間狀態邏輯逆向還原',
+    tip:'利用模型「思考過程影像」的特性，進行數學求解、空間狀態逆向還原等邏輯推理過程的視覺化展現。',
+    render:(p)=>`
+      <div class="radio-group">
+        <label><input type="radio" name="${p}-mode" value="math" checked onchange="toggleSub('${p}')"> 數學推理</label>
+        <label><input type="radio" name="${p}-mode" value="reverse" onchange="toggleSub('${p}')"> 空間狀態逆向</label>
+      </div>
+      <div class="subfields active" id="${p}-sub-math">
+        <div class="field"><label>數學問題</label>
+          <input type="text" id="${p}-problem" placeholder="例如：求解 log_(x²+1)(x⁴-1)=2（複數範圍）"></div>
+      </div>
+      <div class="subfields" id="${p}-sub-reverse">
+        <div class="field"><label>目前畫面描述</label>
+          <input type="text" id="${p}-current" placeholder="例如：一張裝修完成的房間照片"></div>
+        <div class="field"><label>想還原的狀態</label>
+          <input type="text" id="${p}-target" placeholder="例如：施工前的樣子，可見框架與尚未完成的石膏板"></div>
+      </div>
+    `,
+    build:(p)=>{
+      const mode=document.querySelector(`input[name="${p}-mode"]:checked`).value;
+      if(mode==='math'){
+        const problem=val(p,'problem');
+        return `在白板上求解${problem||'這個數學問題'}，並清楚展示每一步驟的思考推理過程。`;
+      } else {
+        const current=val(p,'current'), target=val(p,'target');
+        return `分析${current||'這張圖片'}，並生成一張「${target||'還原後'}」的畫面，呈現合理的中間過程。`;
+      }
+    }
+  },
+  {
+    id:9, num:'09',
+    title:'一次到位的故事分鏡',
+    subtitle:'單次生成多格分鏡，角色身份與服裝全程一致',
+    tip:'能單次生成多格或整套故事分鏡圖，維持多角度、多距離鏡頭變換時，依然嚴格保持主角身份與服裝的一致性。',
+    render:(p)=>`
+      <div class="field"><label>主角描述 <span class="hint">（每行一位）</span></label>
+        <textarea id="${p}-characters" rows="2" placeholder="一位女性主角（來自精品行李箱廣告）&#10;一位男性主角"></textarea></div>
+      <div class="grid2">
+        <div class="field"><label>分鏡格數</label>
+          <input type="number" id="${p}-count" value="9" min="2" max="12"></div>
+        <div class="field"><label>畫面比例</label>
+          <select id="${p}-ratio">
+            <option>16:9</option><option>1:1</option><option>9:16</option><option>4:3</option>
+          </select></div>
+      </div>
+      <div class="field"><label>故事情緒弧線</label>
+        <input type="text" id="${p}-arc" placeholder="例如：需包含情緒的高潮與低谷"></div>
+      <div class="field"><label>結尾畫面</label>
+        <input type="text" id="${p}-ending" placeholder="例如：女性搭配品牌標誌的優雅畫面作結"></div>
+    `,
+    build:(p)=>{
+      const characters=lines(p,'characters'), count=val(p,'count'), ratio=val(p,'ratio'),
+            arc=val(p,'arc'), ending=val(p,'ending');
+      let out=`以${characters.length?characters.join('與'):'指定主角'}為主角，創作一個由 ${count} 張圖片組成、讓人欲罷不能的分鏡故事。`;
+      if(arc) out+=`故事${arc}。`;
+      if(ending) out+=`最後以${ending}。`;
+      out+=`所有角色的身份與服裝在整個故事中必須保持一致，但可、且應從不同角度與距離呈現。請一次生成一張圖片，並確保每張皆為 ${ratio} 格式。`;
+      return out;
+    }
+  },
+  {
+    id:10, num:'10',
+    title:'嚴格控制構圖與版面',
+    subtitle:'上傳草稿作為控制基底，精確遵照版面位置',
+    tip:'直接上傳手繪草圖、線框圖或格線圖作為控制基底，能強迫模型精確遵照草稿中的物件與文字版面位置。',
+    render:(p)=>`
+      <div class="field"><label>草稿內容描述 <span class="hint">（描述你上傳的手繪草圖 / 線框圖）</span></label>
+        <textarea id="${p}-sketch" rows="2" placeholder="例如：左上角為 Logo，中央為產品主圖，下方為標語文字區"></textarea></div>
+      <div class="field"><label>產品 / 廣告主題</label>
+        <input type="text" id="${p}-product" placeholder="例如：一款新上市的無線耳機"></div>
+      <div class="field"><label>風格要求 <span class="hint">（選填）</span></label>
+        <input type="text" id="${p}-style" placeholder="例如：科技感、深色背景、金屬質感"></div>
+    `,
+    build:(p)=>{
+      const sketch=val(p,'sketch'), product=val(p,'product'), style=val(p,'style');
+      let out=`依照上傳的草圖`;
+      if(sketch) out+=`（草圖內容：${sketch}）`;
+      out+=`為「${product||'此產品'}」製作廣告。請嚴格遵照草稿中的物件與文字版面位置。`;
+      if(style) out+=`風格要求：${style}。`;
+      return out;
+    }
+  }
+];
+
+/* ====== 小工具函式：讀取欄位值 ====== */
+function val(p, key){
+  const el=document.getElementById(`${p}-${key}`);
+  return el ? el.value.trim() : '';
+}
+function lines(p, key){
+  return val(p,key).split('\n').map(s=>s.trim()).filter(Boolean);
+}
+function toggleSub(p){
+  const mode=document.querySelector(`input[name="${p}-mode"]:checked`).value;
+  document.querySelectorAll(`[id^="${p}-sub-"]`).forEach(el=>el.classList.remove('active'));
+  const target=document.getElementById(`${p}-sub-${mode}`);
+  if(target) target.classList.add('active');
+}
+
+/* ====== 產生提示詞 ====== */
+function generate(id){
+  const tip=TIPS.find(t=>t.id===id);
+  const p=`t${id}`;
+  const result=tip.build(p);
+  const out=document.getElementById(`${p}-output`);
+  const textarea=document.getElementById(`${p}-text`);
+  textarea.value=result;
+  out.classList.add('show');
+}
+
+/* ====== 複製到剪貼簿 ====== */
+function copyPrompt(id){
+  const p=`t${id}`;
+  const textarea=document.getElementById(`${p}-text`);
+  if(!textarea.value){ generate(id); }
+  navigator.clipboard.writeText(textarea.value).then(()=>{
+    const fb=document.getElementById(`${p}-feedback`);
+    fb.classList.add('show');
+    setTimeout(()=>fb.classList.remove('show'), 1800);
+  });
+}
+
+/* ====== 渲染所有卡片與導覽列 ====== */
+function renderAll(){
+  const cardsEl=document.getElementById('cards');
+  const navEl=document.getElementById('quicknav');
+  TIPS.forEach(tip=>{
+    const p=`t${tip.id}`;
+    navEl.innerHTML += `<a href="#${p}">${tip.num}</a>`;
+    cardsEl.innerHTML += `
+      <section class="card" id="${p}">
+        <div class="card-head">
+          <div class="card-num">${tip.num}</div>
+          <div class="card-title">
+            <h3>${tip.title}</h3>
+            <p>${tip.subtitle}</p>
+          </div>
+        </div>
+        <div class="tip-box">💡 ${tip.tip}</div>
+        ${tip.render(p)}
+        <div class="card-actions">
+          <button class="btn btn-primary" onclick="generate(${tip.id})">產生提示詞</button>
+          <button class="btn btn-ghost" onclick="copyPrompt(${tip.id})">複製</button>
+          <span class="copy-feedback" id="${p}-feedback">已複製到剪貼簿 ✓</span>
+        </div>
+        <div class="output" id="${p}-output">
+          <textarea id="${p}-text" readonly></textarea>
+        </div>
+      </section>
+    `;
+  });
+}
+renderAll();
+</script>
+</body>
+</html>
