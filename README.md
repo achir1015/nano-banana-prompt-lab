@@ -1,5 +1,7 @@
-# nano-banana-prompt-lab
+# nano-banana-prompt-lab https://achir1015.github.io/nano-banana-prompt-lab/
 把十大秘訣，變成可直接貼上的提示詞
+<img width="1862" height="687" alt="image" src="https://github.com/user-attachments/assets/6bc85285-2864-4862-ad04-3aaeea1dffa4" />
+
 這是一個獨立的 HTML 工具，涵蓋 Nano Banana Pro 的十大製作秘訣，每個秘訣都有專屬表單，填完欄位後按「產生提示詞」就會組出對應的中文提示詞，按「複製」就能直接貼到 nanobananas.ai/zh-TW/profile 使用。
 功能重點：
 
